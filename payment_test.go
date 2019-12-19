@@ -1,12 +1,13 @@
-package payment_test
+package payment
 
 import (
 	"github.com/onskycloud/go-redis"
-	"github.com/onskycloud/payment"
 	"testing"
 	"time"
 )
 
+// SubscriptionKey Seperate Char
+const SubscriptionKey = "test"
 func TestContainer(t *testing.T) {
 	cn := "123456"
 	sn := "test"
@@ -31,7 +32,7 @@ func TestContainer(t *testing.T) {
 	// 	HaveTrialPackage: true,
 	// 	TrialDuration:    10,
 	// }
-	model := &payment.SubscriptionCache{
+	model := &SubscriptionCache{
 		UUID:             "123456",
 		PackageID:        "123456",
 		StartDate:        now,
@@ -52,10 +53,11 @@ func TestContainer(t *testing.T) {
 
 	client.SetObject("onsky:payment:subscriptions", cn+sn, model)
 
-	testValidatePayment(client, cn, sn, t)
+	p:= Init(client,SubscriptionKey)
+	testValidatePayment(p, cn, sn, t)
 }
-func testValidatePayment(db *redis.Redis, cn string, sn string, t *testing.T) {
-	duration,err := payment.Validate(db, cn, sn)
+func testValidatePayment(p *Payment, cn string, sn string, t *testing.T) {
+	duration,err := p.Validate( cn, sn)
 	if err != nil {
 		t.Fatalf("payment reject: %+v\n", err)
 	}

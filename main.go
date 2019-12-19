@@ -10,22 +10,29 @@ import (
 // ServiceName Seperate Char
 const ServiceName = "payment"
 
-// SubscriptionKey Seperate Char
-const SubscriptionKey = "onsky:payment:subscriptions"
 
 const (
 	Time     = iota + 1 // quota + time => duration>0, duration = endate - startdate
 	Quota               // quota only => duration =0 => depend on service, nerver expired
 	Interval            // quota + time , duration = (endate - startdate)/interval time
 )
-
+type Payment struct{
+	DB *redis.Redis
+	SubscriptionKey string
+}
+func Init(db *redis.Redis, subKey string)*Payment{
+	return &Payment{
+		DB: db,
+		SubscriptionKey: subKey,
+	}
+}
 // Validate payment subscription
-func Validate(db *redis.Redis, customerNumber string, serviceName string) (uint16,error) {
+func (p *Payment) Validate(customerNumber string, serviceName string) (uint16,error) {
 	now := time.Now()
-	if db == nil || customerNumber == "" || serviceName == ""{
+	if p == nil || customerNumber == "" || serviceName == ""{
 		return 0,errors.BadRequest(ServiceName, "validate:invalidParams")
 	}
-	subscription, err := getSubscription(db, customerNumber, serviceName)
+	subscription, err := getSubscription(p, customerNumber, serviceName)
 	if err != nil {
 		return 0,err
 	}
@@ -105,11 +112,11 @@ func checkSubscription(subscription *SubscriptionCache, now time.Time) (uint16,e
 	}
 	return 0,errors.Forbidden(ServiceName, "validate:invalidType")
 }
-func getSubscription(db *redis.Redis, customerNumber string, serviceName string) (*SubscriptionCache, error) {
+func getSubscription(p *Payment, customerNumber string, serviceName string) (*SubscriptionCache, error) {
 	var subscription = new(SubscriptionCache)
 	var t interface{}
 	// get subscription from cache
-	err := db.GetObject(SubscriptionKey, customerNumber+serviceName, subscription)
+	err := p.DB.GetObject(p.SubscriptionKey, customerNumber+serviceName, subscription)
 	if err != nil {
 		if err.Error()=="redis: nil"{
 			return nil,errors.Forbidden(ServiceName, "validate:unregestered")
