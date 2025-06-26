@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/onskycloud/go-redis"
-	"github.com/onskycloud/rbac/model"
+	"github.com/SkycareOnskyHealth/go-redis"
+	"github.com/SkycareOnskyHealth/rbac/model"
 )
 
 // SubscriptionKey Seperate Char

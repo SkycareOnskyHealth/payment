@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/SkycareOnskyHealth/go-redis"
+	"github.com/SkycareOnskyHealth/rbac/model"
 	"github.com/micro/go-micro/errors"
-	"github.com/onskycloud/go-redis"
-	"github.com/onskycloud/rbac/model"
 )
 
 // ServiceName Seperate Char
